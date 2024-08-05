@@ -1,11 +1,10 @@
-var createError = require("http-errors");
 var express = require("express");
 //var path = require('path'); package import
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
-var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
+var userRouter = require("./routes/userRouter");
+var authRouter = require("./routes/authRouter");
 
 var app = express();
 
@@ -18,8 +17,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
+app.use("/userRouter", userRouter);
+app.use("/authRouter", authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
