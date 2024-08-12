@@ -92,11 +92,12 @@ module.exports = {
       const { username, password } = req.query;
       let userDeleted = false;
 
-      // Using map to find and delete the user
       user.map((user, index) => {
-        if (user.username === username && user.password === password) {
-          user.splice(index, 1);
-          userDeleted = true;
+        if (user.username === username) {
+          if (user.password === password) {
+            user.splice(index, 1);
+            userDeleted = true;
+          }
         }
       });
 
