@@ -51,27 +51,6 @@ module.exports = {
       user.map((user) => {
         if (user.username === username) {
           return res.send({
-            response: "User exists ",
-            user,
-          });
-        }
-      });
-      return res.send({
-        response: "user doesnot exist",
-      });
-    } catch (error) {
-      return res.send({
-        error: error.message,
-      });
-    }
-  },
-
-  getuser: (req, res) => {
-    try {
-      const { username } = req.query;
-      user.map((user) => {
-        if (user.username === username) {
-          return res.send({
             response: "User exists",
             user,
           });
@@ -92,10 +71,10 @@ module.exports = {
       const { username, password } = req.query;
       let userDeleted = false;
 
-      user.map((user, index) => {
+      user.map((user, index, array) => {
         if (user.username === username) {
           if (user.password === password) {
-            user.splice(index, 1);
+            array.splice(index, 1);
             userDeleted = true;
           }
         }
