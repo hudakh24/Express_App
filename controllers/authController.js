@@ -15,7 +15,7 @@ module.exports = {
       });
 
       if (!userExists) {
-        return res.status(401).send({
+        return res.send({
           response: "User not found",
         });
       }
@@ -28,7 +28,7 @@ module.exports = {
           response: "User logged in",
         });
       } else {
-        return res.status(401).send({
+        return res.send({
           response: "Invalid password",
         });
       }
