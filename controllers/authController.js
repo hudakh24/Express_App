@@ -4,37 +4,33 @@ const { user } = require("./userController"); // Import users from userControlle
 module.exports = {
   login: async (req, res) => {
     try {
-      const { username, password } = req.body;
-      let userExists = false;
+      let { username, password } = req.query;
+      let userLogin = false;
 
-      // Using map to check if the user already exists
-      user.map((user) => {
-        if (user.username === username) {
-          userExists = true;
-        }
-      });
+      //The map function itself does not handle promises or async operations so use promise.all
+      await Promise.all(
+        user.map(async (user) => {
+          if (user.username === username) {
+            const isMatch = await compare(password, user.password);
+            if (isMatch) {
+              userLogin = true; // Set flag to true
+            }
+          }
+        })
+      );
 
-      if (!userExists) {
+      if (userLogin) {
         return res.send({
-          response: "User not found",
-        });
-      }
-
-      // Compare provided password with the stored hashed password
-      const isMatch = await compare(password, user.password);
-
-      if (isMatch) {
-        return res.send({
-          response: "User logged in",
+          response: `User ${username} loggedIn successfully`,
         });
       } else {
         return res.send({
-          response: "Invalid password",
+          response: "User not found or password incorrect",
         });
       }
     } catch (error) {
       return res.send({
-        error: error.message, // Send error message in case of any exception
+        error: error.message,
       });
     }
   },
