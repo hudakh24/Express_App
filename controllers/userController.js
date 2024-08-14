@@ -92,7 +92,7 @@ module.exports = {
         });
       } else {
         return res.send({
-          response: "User not found or password incorrect",
+          response: "user not found",
         });
       }
     } catch (error) {
