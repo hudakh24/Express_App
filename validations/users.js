@@ -32,7 +32,7 @@ module.exports = {
     }
   },
 
-  deleteusername: async (req, res, next) => {
+  DeleteUserName: async (req, res, next) => {
     const deleteUser = Joi.object({
       username: Joi.string().min(3).max(34).required(),
       password: Joi.string().min(6).max(18).required(),

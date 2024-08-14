@@ -1,9 +1,10 @@
+var { hash, compare } = require("bcryptjs");
 const user = [];
-
 module.exports = {
-  create: (req, res) => {
+  user,
+  create: async (req, res) => {
     try {
-      const { username, password } = req.body;
+      let { username, password } = req.body;
       let userExists = false;
 
       // Using map to check if the user already exists
@@ -20,6 +21,7 @@ module.exports = {
         });
       } else {
         // If user does not exist, add the user and send the response
+        password = await hash(password, 10);
         user.push({ username, password });
         return res.send({
           response: username, // return the username
@@ -45,7 +47,7 @@ module.exports = {
     }
   },
 
-  getuser: (req, res) => {
+  getUser: (req, res) => {
     try {
       const { username } = req.query;
       user.map((user) => {
@@ -66,19 +68,23 @@ module.exports = {
     }
   },
 
-  deleteuser: (req, res) => {
+  deleteUser: async (req, res) => {
     try {
-      const { username, password } = req.query;
+      let { username, password } = req.query;
       let userDeleted = false;
 
-      user.map((user, index, array) => {
-        if (user.username === username) {
-          if (user.password === password) {
-            array.splice(index, 1);
-            userDeleted = true;
+      //The map function itself does not handle promises or async operations so use promise.all
+      await Promise.all(
+        user.map(async (user, index, array) => {
+          if (user.username === username) {
+            const isMatch = await compare(password, user.password);
+            if (isMatch) {
+              array.splice(index, 1); // Remove user from the array
+              userDeleted = true; // Set flag to true
+            }
           }
-        }
-      });
+        })
+      );
 
       if (userDeleted) {
         return res.send({
@@ -86,7 +92,7 @@ module.exports = {
         });
       } else {
         return res.send({
-          response: "User not found!!",
+          response: "User not found or password incorrect",
         });
       }
     } catch (error) {
