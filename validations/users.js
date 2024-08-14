@@ -17,7 +17,7 @@ module.exports = {
     }
   },
 
-  user_by_name: async (req, res, next) => {
+  UserByName: async (req, res, next) => {
     const username = Joi.object({
       username: Joi.string().min(3).max(34).required(),
     });
@@ -40,6 +40,24 @@ module.exports = {
 
     try {
       const validate = await deleteUser.validateAsync(req.query);
+      next();
+    } catch (error) {
+      return res.send({
+        error: error,
+      });
+    }
+  },
+
+  UpdateTheUser: async (req, res, next) => {
+    const newUser = Joi.object({
+      username: Joi.string().required(),
+      password: Joi.string().required(),
+      newUsername: Joi.string().min(3).max(34),
+      newPassword: Joi.string().min(6).max(18),
+    });
+
+    try {
+      const validate = await newUser.validateAsync(req.body);
       next();
     } catch (error) {
       return res.send({

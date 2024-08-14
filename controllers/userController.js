@@ -68,6 +68,50 @@ module.exports = {
     }
   },
 
+  updateUser: async (req, res) => {
+    try {
+      const { username, password, newUsername, newPassword } = req.body;
+      let userUpdated = false;
+
+      // Loop through users and update if username and password match
+      await Promise.all(
+        user.map(async (user) => {
+          if (user.username === username) {
+            const isMatch = await compare(password, user.password);
+            if (isMatch) {
+              // Update the username if newUsername is provided
+              if (newUsername) {
+                user.username = newUsername;
+              }
+
+              // Update the password if newPassword is provided
+              if (newPassword) {
+                user.password = await hash(newPassword, 10); // Hash the new password
+              }
+
+              userUpdated = true; // Mark that the user was updated
+            }
+          }
+        })
+      );
+
+      if (userUpdated) {
+        return res.send({
+          response: `${username} updated successfully`,
+          user, // Optionally return the updated user list
+        });
+      } else {
+        return res.send({
+          response: "User not found or password incorrect",
+        });
+      }
+    } catch (error) {
+      return res.send({
+        error: error.message,
+      });
+    }
+  },
+
   deleteUser: async (req, res) => {
     try {
       let { username, password } = req.query;
