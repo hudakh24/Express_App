@@ -24,7 +24,7 @@ module.exports = {
           response: `${username} logged in`,
         });
       } else {
-        return res.status(401).send({
+        return res.send({
           response: " User not found",
         });
       }
