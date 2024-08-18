@@ -1,23 +1,45 @@
-const { createUser, getAllUsers } = require("../models/userModel");
-const { response } = require("express");
 var { hash, compare } = require("bcryptjs");
-const responseHandler = require("../responseHandler");
 const user = [];
 module.exports = {
   user,
   create: async (req, res) => {
     try {
-      const user = await createUser(req.body);
-      responseHandler(user, res);
+      let { username, password } = req.body;
+      let userExists = false;
+
+      // Using map to check if the user already exists
+      user.map((user) => {
+        if (user.username === username) {
+          userExists = true;
+        }
+      });
+
+      if (userExists) {
+        // If user exists, send this response
+        return res.send({
+          response: "User already exists",
+        });
+      } else {
+        // If user does not exist, add the user and send the response
+        password = await hash(password, 10);
+        user.push({ username, password });
+        return res.send({
+          response: username, // return the username
+          password, // return the password
+        });
+      }
     } catch (error) {
-      return res.send({ error: error });
+      return res.send({
+        error: error.message, // Ensure the error message is sent if an error occurs
+      });
     }
   },
 
-  getAll: async (req, res) => {
+  getAll: (req, res) => {
     try {
-      const users = await getAllUsers();
-      responseHandler(users, res);
+      return res.send({
+        response: user,
+      });
     } catch (error) {
       return res.send({
         error: error.message,

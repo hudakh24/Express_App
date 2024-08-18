@@ -15,7 +15,7 @@ const {
 routes.post("/create-user", CreateUserSchema, create); //middle ware due which next is used i-e it will move to create when validation is done
 routes.get("/get-all-user", getAll);
 routes.get("/get-by-username", UserByName, getUser);
-routes.delete("/deleteuser", DeleteUserName, deleteUser);
-routes.patch("/updateuser", UpdateTheUser, updateUser);
+routes.delete("/delete-user", DeleteUserName, deleteUser);
+routes.patch("/update-user", UpdateTheUser, updateUser);
 
 module.exports = routes;
