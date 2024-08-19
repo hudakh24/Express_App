@@ -1,7 +1,12 @@
 const sequelize = require("../bin/dbConfig");
 const users = require("./definitions/users");
+const roles = require("./definitions/roles");
 
-const models = { users };
+const models = { users, roles };
+
+//make relation between tables
+roles.hasMany(users, { foreignKey: "roleId" }); // roles and users have 1:M
+users.belongsTo(roles, { foreignKey: "roleId" });
 
 const db = {};
 
