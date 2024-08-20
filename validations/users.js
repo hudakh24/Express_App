@@ -3,6 +3,7 @@ const Joi = require("joi");
 module.exports = {
   CreateUserSchema: async (req, res, next) => {
     const CreateUser = Joi.object({
+      role: Joi.valid("Instructor", "Admin", "Trainee").required(),
       username: Joi.string().min(3).max(34).required(),
       password: Joi.string().min(6).max(18).required(),
     });
@@ -17,13 +18,14 @@ module.exports = {
     }
   },
 
-  UserByName: async (req, res, next) => {
-    const username = Joi.object({
-      username: Joi.string().min(3).max(34).required(),
+  userSchema: async (req, res, next) => {
+    const user = Joi.object({
+      username: Joi.string().min(3).max(34),
+      userId: Joi.string(),
     });
 
     try {
-      const validate = await username.validateAsync(req.query);
+      await user.validateAsync(req.query);
       next();
     } catch (error) {
       return res.send({
@@ -32,21 +34,21 @@ module.exports = {
     }
   },
 
-  DeleteUserName: async (req, res, next) => {
-    const deleteUser = Joi.object({
-      username: Joi.string().min(3).max(34).required(),
-      password: Joi.string().min(6).max(18).required(),
-    });
+  // DeleteUserName: async (req, res, next) => {
+  //   const deleteUser = Joi.object({
+  //     username: Joi.string().min(3).max(34).required(),
+  //     password: Joi.string().min(6).max(18).required(),
+  //   });
 
-    try {
-      const validate = await deleteUser.validateAsync(req.query);
-      next();
-    } catch (error) {
-      return res.send({
-        error: error,
-      });
-    }
-  },
+  //   try {
+  //     const validate = await deleteUser.validateAsync(req.query);
+  //     next();
+  //   } catch (error) {
+  //     return res.send({
+  //       error: error,
+  //     });
+  //   }
+  // },
 
   UpdateTheUser: async (req, res, next) => {
     const newUser = Joi.object({

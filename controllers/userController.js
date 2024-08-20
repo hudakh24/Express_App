@@ -1,12 +1,28 @@
-const { createUser, getAllUsers } = require("../models/userModel");
+const {
+  createUser,
+  getAllUsers,
+  getUser,
+  deleteUser,
+} = require("../models/userModel");
 const { response } = require("express");
 var { hash, compare } = require("bcryptjs");
 const responseHandler = require("../responseHandler");
+const { getRole } = require("../models/commonModel");
 const user = [];
 module.exports = {
   user,
   create: async (req, res) => {
     try {
+      const role = await getRole(req.body);
+      if (role.error) {
+        return res.send({
+          error: role.error,
+        });
+      }
+      // console.log(role.response.dataValues);
+      delete req.body.role;
+      req.body.roleId = role.response.dataValues.roleId;
+
       const user = await createUser(req.body);
       responseHandler(user, res);
     } catch (error) {
@@ -25,20 +41,21 @@ module.exports = {
     }
   },
 
-  getUser: (req, res) => {
+  getUser: async (req, res) => {
     try {
-      const { username } = req.query;
-      user.map((user) => {
-        if (user.username === username) {
-          return res.send({
-            response: "User exists",
-            user,
-          });
-        }
-      });
+      const user = await getUser(req.query);
+      responseHandler(user, res);
+    } catch (error) {
       return res.send({
-        response: "User does not exist",
+        error: error.message,
       });
+    }
+  },
+
+  deleteUser: async (req, res) => {
+    try {
+      const user = await deleteUser(req.query);
+      responseHandler(user, res);
     } catch (error) {
       return res.send({
         error: error.message,
@@ -81,40 +98,6 @@ module.exports = {
       } else {
         return res.send({
           response: "User not found or password incorrect",
-        });
-      }
-    } catch (error) {
-      return res.send({
-        error: error.message,
-      });
-    }
-  },
-
-  deleteUser: async (req, res) => {
-    try {
-      let { username, password } = req.query;
-      let userDeleted = false;
-
-      //The map function itself does not handle promises or async operations so use promise.all
-      await Promise.all(
-        user.map(async (user, index, array) => {
-          if (user.username === username) {
-            const isMatch = await compare(password, user.password);
-            if (isMatch) {
-              array.splice(index, 1); // Remove user from the array
-              userDeleted = true; // Set flag to true
-            }
-          }
-        })
-      );
-
-      if (userDeleted) {
-        return res.send({
-          response: `User ${username} deleted successfully`,
-        });
-      } else {
-        return res.send({
-          response: "user not found",
         });
       }
     } catch (error) {
