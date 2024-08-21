@@ -12,6 +12,14 @@ users.init(
       type: DataTypes.STRING(60),
       primaryKey: true,
     },
+    firstName: {
+      type: DataTypes.STRING(34),
+      allowNull: false,
+    },
+    lastName: {
+      type: DataTypes.STRING(34),
+      allowNull: false,
+    },
     username: {
       type: DataTypes.STRING(34),
       unique: true,
@@ -21,6 +29,11 @@ users.init(
       type: DataTypes.STRING(256),
       allowNull: false,
     },
+    mobile: {
+      type: DataTypes.STRING(13),
+      unique: true,
+      allowNull: false,
+    },
     roleId: {
       type: DataTypes.STRING(60),
       allowNull: false,
@@ -28,6 +41,12 @@ users.init(
         model: roles,
         key: "roleId",
       },
+    },
+
+    email: {
+      type: DataTypes.STRING(),
+      unique: true,
+      allowNull: false,
     },
   },
   {

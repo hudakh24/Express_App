@@ -3,6 +3,7 @@ const {
   getAllUsers,
   getUser,
   deleteUser,
+  updateUser,
 } = require("../models/userModel");
 const { response } = require("express");
 var { hash, compare } = require("bcryptjs");
@@ -32,7 +33,8 @@ module.exports = {
 
   getAll: async (req, res) => {
     try {
-      const users = await getAllUsers();
+      req.query.offset = (req.query.pageNo - 1) * req.query.limit;
+      const users = await getAllUsers(req.query);
       responseHandler(users, res);
     } catch (error) {
       return res.send({
@@ -63,43 +65,10 @@ module.exports = {
     }
   },
 
-  updateUser: async (req, res) => {
+  update: async (req, res) => {
     try {
-      const { username, password, newUsername, newPassword } = req.body;
-      let userUpdated = false;
-
-      // Loop through users and update if username and password match
-      await Promise.all(
-        user.map(async (user) => {
-          if (user.username === username) {
-            const isMatch = await compare(password, user.password);
-            if (isMatch) {
-              // Update the username if newUsername is provided
-              if (newUsername) {
-                user.username = newUsername;
-              }
-
-              // Update the password if newPassword is provided
-              if (newPassword) {
-                user.password = await hash(newPassword, 10); // Hash the new password
-              }
-
-              userUpdated = true; // Mark that the user was updated
-            }
-          }
-        })
-      );
-
-      if (userUpdated) {
-        return res.send({
-          response: `${username} updated successfully`,
-          user, // Optionally return the updated user list
-        });
-      } else {
-        return res.send({
-          response: "User not found or password incorrect",
-        });
-      }
+      const user = await updateUser(req.body);
+      responseHandler(user, res);
     } catch (error) {
       return res.send({
         error: error.message,

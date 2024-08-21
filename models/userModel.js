@@ -1,4 +1,5 @@
 const { models } = require("./index");
+const { Op } = require("sequelize");
 
 module.exports = {
   createUser: async (body) => {
@@ -16,17 +17,46 @@ module.exports = {
     }
   },
 
-  getAllUsers: async () => {
+  getAllUsers: async (query) => {
     try {
       const users = await models.users.findAll({
+        where: {
+          //checks firstName exists? if yes creates an object and then filer is performed on the firstName column
+          ...(query.firstName
+            ? { firstName: { [Op.substring]: query.firstName } }
+            : true),
+          ...(query.lastName
+            ? { lastName: { [Op.substring]: query.lastName } }
+            : true),
+          ...(query.mobile
+            ? { mobile: { [Op.substring]: query.mobile } }
+            : true),
+          ...(query.email ? { email: { [Op.substring]: query.email } } : true),
+          ...(query.username
+            ? { username: { [Op.substring]: query.username } }
+            : true),
+        },
         //attributes: ["userId", "username"],
         attributes: { exclude: ["password"] },
         include: [
           {
             model: models.roles, //joining with table roles
             attributes: ["role"],
+            //role filter here bcz it exist in role table
+            where: {
+              ...(query.role ? { role: query.role } : true),
+            },
           },
         ],
+        // order:[["order", "by"]], order accepts two values
+        order: [
+          [
+            query.orderWith ? query.orderWith : "firstName",
+            query.orderBy ? query.orderBy : "ASC",
+          ],
+        ],
+        offset: query.offset,
+        limit: query.limit,
       });
       return {
         response: users,
@@ -75,6 +105,27 @@ module.exports = {
           ...(userId ? { userId: userId } : { username: username }),
         },
       });
+      return {
+        response: user,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        error: error,
+      };
+    }
+  },
+
+  updateUser: async ({ userId, ...body }) => {
+    try {
+      const user = await models.users.update(
+        { ...body },
+        {
+          where: {
+            userId: userId,
+          },
+        }
+      );
       return {
         response: user,
       };
