@@ -77,7 +77,7 @@ module.exports = {
           ...(userId ? { userId: userId } : { username: username }),
         },
         //attributes: ["userId", "username"],
-        attributes: { exclude: ["password"] },
+        // attributes: { exclude: ["password"] },
         include: [
           {
             model: models.roles, //joining with table roles
@@ -126,6 +126,25 @@ module.exports = {
           },
         }
       );
+      return {
+        response: user,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        error: error,
+      };
+    }
+  },
+
+  profile: async ({ userId }) => {
+    try {
+      const user = await models.users.findOne({
+        where: {
+          userId: userId,
+        },
+        attributes: { exclude: ["password"] },
+      });
       return {
         response: user,
       };
